@@ -106,20 +106,32 @@
                 skipEmptyLines: true,
                 complete: function(results) {
                     console.log('✅ Datos recibidos, total filas:', results.data.length);
-                    if (results.data.length > 3) {
-                        const headers = results.data[2];
-                        const dataRows = results.data.slice(3);
-                        console.log('Encabezados:', headers);
-                        console.log('Primera fila de datos:', dataRows[0]);
-                        const processedData = dataRows.map(row => {
-                            const obj = {};
-                            headers.forEach((header, index) => { obj[header] = row[index]; });
-                            return obj;
-                        });
-                        procesarDatos(processedData);
-                    } else {
-                        mostrarError('No se encontraron suficientes datos');
+                    
+                    let headerIndex = -1;
+                    for (let i = 0; i < results.data.length; i++) {
+                        if (results.data[i][0] && results.data[i][0].toString().toUpperCase().includes('FECHA')) {
+                            headerIndex = i;
+                            console.log('✅ Encabezados encontrados en fila:', i);
+                            break;
+                        }
                     }
+                    
+                    if (headerIndex === -1) {
+                        mostrarError('No se encontró la fila de encabezados (FECHA)');
+                        return;
+                    }
+                    
+                    const headers = results.data[headerIndex];
+                    const dataRows = results.data.slice(headerIndex + 1);
+                    console.log('Encabezados:', headers);
+                    console.log('Primera fila de datos:', dataRows[0]);
+                    
+                    const processedData = dataRows.map(row => {
+                        const obj = {};
+                        headers.forEach((header, index) => { obj[header] = row[index]; });
+                        return obj;
+                    });
+                    procesarDatos(processedData);
                 },
                 error: function(error) {
                     console.error('❌ Error:', error);
