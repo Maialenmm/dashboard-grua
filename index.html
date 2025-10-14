@@ -7,312 +7,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .header-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            margin-bottom: 30px;
-            text-align: center;
-            border: 3px solid #4f46e5;
-            position: relative;
-        }
-        
-        .logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-        }
-        
-        .header-card h1 {
-            color: #1e293b;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-        
-        .header-card p {
-            color: #64748b;
-            font-size: 1.2em;
-        }
-        
-        .reload-btn {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            padding: 12px 24px;
-            background: #10b981;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-            transition: all 0.3s;
-        }
-        
-        .reload-btn:hover {
-            background: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
-        }
-        
-        .info-banner {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-left: 5px solid #0ea5e9;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .info-banner strong {
-            color: #0369a1;
-            font-size: 1.1em;
-        }
-        
-        .selector-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-        }
-        
-        .selector-label {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 15px;
-            display: block;
-        }
-        
-        select {
-            width: 100%;
-            padding: 18px 24px;
-            font-size: 1.1em;
-            border: 3px solid #e2e8f0;
-            border-radius: 15px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: #1e293b;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 20px center;
-            background-size: 24px;
-            padding-right: 60px;
-        }
-        
-        select:hover {
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        }
-        
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border-top: 5px solid #667eea;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
-        }
-        
-        .stat-card h3 {
-            color: #64748b;
-            font-size: 0.9em;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-        }
-        
-        .stat-card .value {
-            color: #1e293b;
-            font-size: 3em;
-            font-weight: 700;
-            line-height: 1;
-        }
-        
-        .stat-card .trend {
-            margin-top: 15px;
-            font-size: 1em;
-            font-weight: 600;
-        }
-        
-        .trend.up {
-            color: #10b981;
-        }
-        
-        .trend.down {
-            color: #ef4444;
-        }
-        
-        .trend.neutral {
-            color: #f59e0b;
-        }
-        
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .chart-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            transition: transform 0.3s;
-        }
-        
-        .chart-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .chart-card h2 {
-            color: #1e293b;
-            margin-bottom: 20px;
-            font-size: 1.4em;
-            text-align: center;
-            font-weight: 600;
-        }
-        
-        .chart-wrapper {
-            position: relative;
-            height: 300px;
-        }
-        
-        .chart-combined {
-            grid-column: 1 / -1;
-        }
-        
-        .chart-combined .chart-wrapper {
-            height: 400px;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 60px;
-            background: white;
-            border-radius: 20px;
-            margin: 20px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-        
-        .loading-spinner {
-            border: 5px solid #f3f4f6;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .no-data {
-            text-align: center;
-            padding: 80px 20px;
-            color: #64748b;
-            font-size: 1.3em;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-        
-        .error-message {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            border-left: 5px solid #ef4444;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
-        }
-
-        .debug-info {
-            background: #fef3c7;
-            border-left: 5px solid #f59e0b;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            font-family: monospace;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header-card { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin-bottom: 30px; text-align: center; border: 3px solid #4f46e5; position: relative; }
+        .logo { width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+        .header-card h1 { color: #1e293b; font-size: 2.5em; margin-bottom: 10px; font-weight: 700; }
+        .header-card p { color: #64748b; font-size: 1.2em; }
+        .reload-btn { position: absolute; top: 30px; right: 30px; padding: 12px 24px; background: #10b981; color: white; border: none; border-radius: 10px; font-size: 1em; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); transition: all 0.3s; }
+        .reload-btn:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6); }
+        .info-banner { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-left: 5px solid #0ea5e9; padding: 20px; border-radius: 15px; margin-bottom: 30px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .info-banner strong { color: #0369a1; font-size: 1.1em; }
+        .selector-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 30px; }
+        .selector-label { font-size: 1.2em; font-weight: 600; color: #1e293b; margin-bottom: 15px; display: block; }
+        select { width: 100%; padding: 18px 24px; font-size: 1.1em; border: 3px solid #e2e8f0; border-radius: 15px; background: white; cursor: pointer; transition: all 0.3s; color: #1e293b; }
+        select:hover { border-color: #667eea; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); }
+        select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center; transition: transform 0.3s, box-shadow 0.3s; border-top: 5px solid #667eea; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.25); }
+        .stat-card h3 { color: #64748b; font-size: 0.9em; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .stat-card .value { color: #1e293b; font-size: 3em; font-weight: 700; line-height: 1; }
+        .stat-card .trend { margin-top: 15px; font-size: 1em; font-weight: 600; }
+        .trend.up { color: #10b981; }
+        .trend.down { color: #ef4444; }
+        .trend.neutral { color: #f59e0b; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 30px; margin-bottom: 30px; }
+        .chart-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); transition: transform 0.3s; }
+        .chart-card:hover { transform: translateY(-5px); }
+        .chart-card h2 { color: #1e293b; margin-bottom: 20px; font-size: 1.4em; text-align: center; font-weight: 600; }
+        .chart-wrapper { position: relative; height: 300px; }
+        .chart-combined { grid-column: 1 / -1; }
+        .chart-combined .chart-wrapper { height: 400px; }
+        .loading { text-align: center; padding: 60px; background: white; border-radius: 20px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .loading-spinner { border: 5px solid #f3f4f6; border-top: 5px solid #667eea; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .no-data { text-align: center; padding: 80px 20px; color: #64748b; font-size: 1.3em; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .error-message { background: #fee2e2; color: #991b1b; padding: 25px; border-radius: 15px; margin-bottom: 20px; border-left: 5px solid #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+        .debug-info { background: #fef3c7; border-left: 5px solid #f59e0b; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9em; font-family: monospace; max-height: 200px; overflow-y: auto; }
         @media (max-width: 768px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .chart-combined {
-                grid-column: 1;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .reload-btn {
-                position: relative;
-                top: auto;
-                right: auto;
-                margin-top: 20px;
-            }
+            .charts-grid { grid-template-columns: 1fr; }
+            .chart-combined { grid-column: 1; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .reload-btn { position: relative; top: auto; right: auto; margin-top: 20px; }
         }
     </style>
 </head>
@@ -324,55 +61,32 @@
             <h1>Dashboard de Seguimiento - GRÚA</h1>
             <p>Sistema de monitoreo de propulsiones UARM</p>
         </div>
-        
         <div id="loadingIndicator" class="loading">
             <div class="loading-spinner"></div>
             <p style="color: #1e293b; font-size: 1.2em; font-weight: 600;">Cargando datos desde Google Sheets...</p>
         </div>
-        
         <div id="errorContainer" style="display: none;"></div>
         <div id="debugInfo" style="display: none;"></div>
-        
         <div id="infoBox" class="info-banner" style="display: none;">
             <strong>📊 Datos cargados:</strong> <span id="infoText"></span>
         </div>
-        
         <div class="selector-card" id="selectorCard" style="display: none;">
             <label class="selector-label">Seleccionar Residente:</label>
-            <select id="residentSelect">
-                <option value="">-- Seleccione un residente --</option>
-            </select>
+            <select id="residentSelect"><option value="">-- Seleccione un residente --</option></select>
         </div>
-        
         <div class="stats-grid" id="statsContainer" style="display: none;">
-            <div class="stat-card">
-                <h3>Total Registros</h3>
-                <div class="value" id="totalRegistros">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Promedio Propulsiones</h3>
-                <div class="value" id="avgPropulsiones">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Promedio Tiempo (seg)</h3>
-                <div class="value" id="avgTiempo">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Tendencia</h3>
-                <div class="value trend" id="tendencia">--</div>
-            </div>
+            <div class="stat-card"><h3>Total Registros</h3><div class="value" id="totalRegistros">0</div></div>
+            <div class="stat-card"><h3>Promedio Propulsiones</h3><div class="value" id="avgPropulsiones">0</div></div>
+            <div class="stat-card"><h3>Promedio Tiempo (seg)</h3><div class="value" id="avgTiempo">0</div></div>
+            <div class="stat-card"><h3>Tendencia</h3><div class="value trend" id="tendencia">--</div></div>
         </div>
-        
         <div class="charts-grid" id="chartsContainer">
-            <div class="no-data">
-                Los datos se cargarán automáticamente desde Google Sheets...
-            </div>
+            <div class="no-data">Los datos se cargarán automáticamente desde Google Sheets...</div>
         </div>
     </div>
-
     <script>
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRI7fOSE8Ujcgw_kVI9lBEpJhPPiZ71_c_vucrvpPDDrm2cbS-32bS-_Jfg0mnH_kbZJhPQtYC1UhXI/pub?gid=543101921&single=true&output=csv';
-        
+        const SHEET_ID = '1J4m__WGpBuzCU1dgpP5ZWWbY5yUakq-V8eDy8iRpUfg';
+        const SHEET_NAME = 'DATOS';
         let datosOriginales = [];
         let charts = {};
         
@@ -383,139 +97,88 @@
             document.getElementById('selectorCard').style.display = 'none';
             document.getElementById('infoBox').style.display = 'none';
             
-            console.log('🔄 Cargando datos desde:', SHEET_URL);
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}`;
+            console.log('🔄 Cargando datos desde:', url);
             
-            Papa.parse(SHEET_URL, {
+            Papa.parse(url, {
                 download: true,
                 header: false,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    console.log('✅ Datos recibidos correctamente');
-                    // Ignorar primera fila (GRUA) y usar segunda fila como encabezados
-                    if (results.data.length > 1) {
-                        const headers = results.data[1]; // Fila 2 con encabezados
-                        const dataRows = results.data.slice(2); // Datos desde fila 3
-                        
-                        // Convertir a objetos con encabezados
+                    console.log('✅ Datos recibidos');
+                    if (results.data.length > 2) {
+                        const headers = results.data[1];
+                        const dataRows = results.data.slice(2);
                         const processedData = dataRows.map(row => {
                             const obj = {};
-                            headers.forEach((header, index) => {
-                                obj[header] = row[index];
-                            });
+                            headers.forEach((header, index) => { obj[header] = row[index]; });
                             return obj;
                         });
-                        
                         procesarDatos(processedData);
                     } else {
-                        mostrarError('No se encontraron datos en el Google Sheet');
+                        mostrarError('No se encontraron datos');
                     }
                 },
                 error: function(error) {
                     console.error('❌ Error:', error);
-                    mostrarError('Error al cargar los datos: ' + error.message);
+                    mostrarError('Error al cargar. Asegúrate de que el Google Sheet sea público (Compartir → Cualquier persona con el enlace puede ver)');
                 }
             });
         }
         
         function procesarDatos(datos) {
             datosOriginales = [];
+            console.log('📊 Procesando', datos.length, 'filas');
+            if (datos.length > 0) mostrarDebugInfo(Object.keys(datos[0]));
             
-            console.log('📊 Total de filas recibidas:', datos.length);
-            
-            if (datos.length > 0) {
-                const columnas = Object.keys(datos[0]);
-                console.log('Columnas disponibles:', columnas);
-                mostrarDebugInfo(columnas);
-            }
-            
-            datos.forEach((fila, index) => {
-                const apellido1 = fila['APELLIDO 1'] || fila['APELLIDO1'] || fila['Apellido 1'] || '';
-                const apellido2 = fila['APELLIDO 2'] || fila['APELLIDO2'] || fila['Apellido 2'] || '';
-                const nombre = fila['NOMBRE'] || fila['Nombre'] || fila['NOMBRE RESIDENTE'] || '';
-                
+            datos.forEach(fila => {
+                const apellido1 = fila['APELLIDO 1'] || fila['APELLIDO1'] || '';
+                const apellido2 = fila['APELLIDO 2'] || fila['APELLIDO2'] || '';
+                const nombre = fila['NOMBRE'] || '';
                 if (apellido1 && apellido2 && nombre) {
                     const nombreCompleto = `${nombre} ${apellido1} ${apellido2}`.toLowerCase().trim();
-                    const fecha = fila['FECHA'] || fila['Fecha'] || '';
-                    const supervisor = fila['SUPERVISOR'] || fila['Supervisor'] || '';
-                    
-                    const propulsiones = parseInt(
-                        fila['Nº PROPULSIONES'] || 
-                        fila['N.º PROPULSIONES'] || 
-                        fila['NºPROPULSIONES'] ||
-                        fila['N° PROPULSIONES'] ||
-                        fila['Nº Propulsiones'] ||
-                        0
-                    );
-                    
-                    const tiempo = parseInt(
-                        fila['TIEMPO TOLERADO (seg)'] || 
-                        fila['TIEMPO TOLERADO(seg)'] ||
-                        fila['TIEMPO TOLERADO'] ||
-                        fila['Tiempo Tolerado (seg)'] ||
-                        fila['Tiempo Tolerado'] ||
-                        0
-                    );
-                    
-                    const observaciones = fila['OBSERVACIONES CLINICAS'] || fila['OBSERVACIONES CLÍNICAS'] || fila['OBSERVACIONES'] || fila['Observaciones'] || '';
-                    
+                    const fecha = fila['FECHA'] || '';
+                    const supervisor = fila['SUPERVISOR'] || '';
+                    const propulsiones = parseInt(fila['Nº PROPULSIONES'] || fila['N.º PROPULSIONES'] || 0);
+                    const tiempo = parseInt(fila['TIEMPO TOLERADO (seg)'] || fila['TIEMPO TOLERADO'] || 0);
+                    const observaciones = fila['OBSERVACIONES CLINICAS'] || fila['OBSERVACIONES CLÍNICAS'] || '';
                     if (fecha && propulsiones > 0 && tiempo > 0) {
-                        datosOriginales.push({
-                            fecha: fecha.trim(),
-                            nombre: nombreCompleto,
-                            supervisor: supervisor.trim(),
-                            propulsiones: propulsiones,
-                            tiempo: tiempo,
-                            observaciones: observaciones.trim()
-                        });
+                        datosOriginales.push({ fecha: fecha.trim(), nombre: nombreCompleto, supervisor: supervisor.trim(), propulsiones, tiempo, observaciones: observaciones.trim() });
                     }
                 }
             });
             
-            console.log('✅ Datos procesados:', datosOriginales.length);
-            
+            console.log('✅ Procesados:', datosOriginales.length);
             if (datosOriginales.length === 0) {
-                mostrarError('No se encontraron datos válidos. Verifica las columnas del Google Sheet.');
+                mostrarError('No se encontraron datos válidos');
                 return;
             }
             
             document.getElementById('loadingIndicator').style.display = 'none';
             document.getElementById('selectorCard').style.display = 'block';
             document.getElementById('infoBox').style.display = 'block';
-            
             const residentes = [...new Set(datosOriginales.map(d => d.nombre))];
             document.getElementById('infoText').textContent = `${datosOriginales.length} registros | ${residentes.length} residentes`;
-            
             poblarSelectorResidentes();
         }
         
         function mostrarDebugInfo(columnas) {
             const debugDiv = document.getElementById('debugInfo');
             debugDiv.style.display = 'block';
-            debugDiv.innerHTML = `
-                <strong>📋 Columnas detectadas:</strong><br>
-                ${columnas.map(col => `"${col}"`).join(', ')}
-            `;
+            debugDiv.innerHTML = `<strong>📋 Columnas:</strong><br>${columnas.map(col => `"${col}"`).join(', ')}`;
         }
         
         function poblarSelectorResidentes() {
             const residentes = [...new Set(datosOriginales.map(d => d.nombre))].sort();
             const select = document.getElementById('residentSelect');
-            
             select.innerHTML = '<option value="">-- Seleccione un residente --</option>';
-            
             residentes.forEach(nombre => {
                 const option = document.createElement('option');
                 option.value = nombre;
                 option.textContent = nombre.split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
                 select.appendChild(option);
             });
-            
-            document.getElementById('chartsContainer').innerHTML = `
-                <div class="no-data">
-                    ✅ ${datosOriginales.length} registros cargados de ${residentes.length} residentes<br><br>
-                    Selecciona un residente del menú para ver sus gráficas
-                </div>
-            `;
+            document.getElementById('chartsContainer').innerHTML = `<div class="no-data">✅ ${datosOriginales.length} registros cargados de ${residentes.length} residentes<br><br>Selecciona un residente</div>`;
         }
         
         function mostrarError(mensaje) {
@@ -530,63 +193,93 @@
             try {
                 const partes = fecha.split('/');
                 if (partes.length === 3) {
-                    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                    return `${partes[0]} ${meses[parseInt(partes[1]) - 1]}`;
+                    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                    return `${partes[0]} ${meses[parseInt(partes[1])-1]}`;
                 }
                 return fecha;
-            } catch (e) {
-                return fecha;
-            }
+            } catch(e) { return fecha; }
         }
         
         function calcularTendencia(datos) {
             if (datos.length < 2) return 'neutral';
-            const ultimo = datos[datos.length - 1];
+            const ultimo = datos[datos.length-1];
             const primero = datos[0];
-            const difPropulsiones = ultimo.propulsiones - primero.propulsiones;
-            const difTiempo = ultimo.tiempo - primero.tiempo;
-            
-            if (difPropulsiones > 0 && difTiempo > 0) return 'up';
-            if (difPropulsiones < 0 || difTiempo < 0) return 'down';
+            const difP = ultimo.propulsiones - primero.propulsiones;
+            const difT = ultimo.tiempo - primero.tiempo;
+            if (difP > 0 && difT > 0) return 'up';
+            if (difP < 0 || difT < 0) return 'down';
             return 'neutral';
         }
         
         function actualizarEstadisticas(datos) {
-            const totalRegistros = datos.length;
-            const avgPropulsiones = (datos.reduce((sum, d) => sum + d.propulsiones, 0) / totalRegistros).toFixed(1);
-            const avgTiempo = (datos.reduce((sum, d) => sum + d.tiempo, 0) / totalRegistros).toFixed(1);
-            const tendencia = calcularTendencia(datos);
-            
-            document.getElementById('totalRegistros').textContent = totalRegistros;
-            document.getElementById('avgPropulsiones').textContent = avgPropulsiones;
-            document.getElementById('avgTiempo').textContent = avgTiempo;
-            
-            const tendenciaEl = document.getElementById('tendencia');
-            tendenciaEl.className = `value trend ${tendencia}`;
-            tendenciaEl.textContent = tendencia === 'up' ? '↑ Mejorando' : tendencia === 'down' ? '↓ Requiere atención' : '→ Estable';
+            const total = datos.length;
+            const avgP = (datos.reduce((s,d) => s + d.propulsiones, 0) / total).toFixed(1);
+            const avgT = (datos.reduce((s,d) => s + d.tiempo, 0) / total).toFixed(1);
+            const tend = calcularTendencia(datos);
+            document.getElementById('totalRegistros').textContent = total;
+            document.getElementById('avgPropulsiones').textContent = avgP;
+            document.getElementById('avgTiempo').textContent = avgT;
+            const tendEl = document.getElementById('tendencia');
+            tendEl.className = `value trend ${tend}`;
+            tendEl.textContent = tend==='up' ? '↑ Mejorando' : tend==='down' ? '↓ Requiere atención' : '→ Estable';
         }
         
         function destruirGraficas() {
-            Object.values(charts).forEach(chart => chart.destroy());
+            Object.values(charts).forEach(c => c.destroy());
             charts = {};
         }
         
         function crearGraficas(residente) {
             destruirGraficas();
-            
-            const datosResidente = datosOriginales.filter(d => d.nombre === residente).sort((a, b) => {
-                const [diaA, mesA, anioA] = a.fecha.split('/');
-                const [diaB, mesB, anioB] = b.fecha.split('/');
-                return new Date(anioA, mesA - 1, diaA) - new Date(anioB, mesB - 1, diaB);
+            const datosR = datosOriginales.filter(d => d.nombre === residente).sort((a,b) => {
+                const [dA,mA,yA] = a.fecha.split('/');
+                const [dB,mB,yB] = b.fecha.split('/');
+                return new Date(yA,mA-1,dA) - new Date(yB,mB-1,dB);
             });
-            
-            if (datosResidente.length === 0) return;
-            
-            actualizarEstadisticas(datosResidente);
+            if (datosR.length === 0) return;
+            actualizarEstadisticas(datosR);
             document.getElementById('statsContainer').style.display = 'grid';
-            
-            const fechas = datosResidente.map(d => formatFecha(d.fecha));
-            const propulsiones = datosResidente.map(d => d.propulsiones);
-            const tiempos = datosResidente.map(d => d.tiempo);
-            
-            const container = docum
+            const fechas = datosR.map(d => formatFecha(d.fecha));
+            const props = datosR.map(d => d.propulsiones);
+            const tiempos = datosR.map(d => d.tiempo);
+            const container = document.getElementById('chartsContainer');
+            container.innerHTML = `
+                <div class="chart-card"><h2>📈 Evolución N.º Propulsiones</h2><div class="chart-wrapper"><canvas id="cp"></canvas></div></div>
+                <div class="chart-card"><h2>⏱️ Evolución Tiempo Tolerado</h2><div class="chart-wrapper"><canvas id="ct"></canvas></div></div>
+                <div class="chart-card chart-combined"><h2>📊 Evolución Combinada</h2><div class="chart-wrapper"><canvas id="cc"></canvas></div></div>
+            `;
+            charts.p = new Chart(document.getElementById('cp').getContext('2d'), {
+                type: 'line',
+                data: { labels: fechas, datasets: [{ label: 'Propulsiones', data: props, borderColor: '#667eea', backgroundColor: 'rgba(102,126,234,0.1)', borderWidth: 3, tension: 0.4, fill: true, pointRadius: 8, pointHoverRadius: 10, pointBackgroundColor: '#667eea', pointBorderColor: '#fff', pointBorderWidth: 3 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Número de Propulsiones', font: { size: 14, weight: 'bold' } }, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } }
+            });
+            charts.t = new Chart(document.getElementById('ct').getContext('2d'), {
+                type: 'line',
+                data: { labels: fechas, datasets: [{ label: 'Tiempo (seg)', data: tiempos, borderColor: '#764ba2', backgroundColor: 'rgba(118,75,162,0.1)', borderWidth: 3, tension: 0.4, fill: true, pointRadius: 8, pointHoverRadius: 10, pointBackgroundColor: '#764ba2', pointBorderColor: '#fff', pointBorderWidth: 3 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Segundos', font: { size: 14, weight: 'bold' } }, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } }
+            });
+            charts.c = new Chart(document.getElementById('cc').getContext('2d'), {
+                type: 'line',
+                data: { labels: fechas, datasets: [
+                    { label: 'Propulsiones', data: props, borderColor: '#667eea', backgroundColor: 'rgba(102,126,234,0.1)', borderWidth: 3, tension: 0.4, yAxisID: 'y', pointRadius: 8, pointHoverRadius: 10, pointBackgroundColor: '#667eea', pointBorderColor: '#fff', pointBorderWidth: 3 },
+                    { label: 'Tiempo (seg)', data: tiempos, borderColor: '#764ba2', backgroundColor: 'rgba(118,75,162,0.1)', borderWidth: 3, tension: 0.4, yAxisID: 'y1', pointRadius: 8, pointHoverRadius: 10, pointBackgroundColor: '#764ba2', pointBorderColor: '#fff', pointBorderWidth: 3 }
+                ]},
+                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: true, position: 'bottom', labels: { padding: 20, font: { size: 14, weight: 'bold' }, usePointStyle: true, pointStyle: 'circle' } } }, scales: { y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Propulsiones', color: '#667eea', font: { size: 14, weight: 'bold' } }, grid: { color: 'rgba(102,126,234,0.1)' } }, y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Tiempo (seg)', color: '#764ba2', font: { size: 14, weight: 'bold' } }, grid: { drawOnChartArea: false } }, x: { grid: { display: false } } } }
+            });
+        }
+        
+        document.getElementById('residentSelect').addEventListener('change', (e) => {
+            const res = e.target.value;
+            if (res) {
+                crearGraficas(res);
+            } else {
+                destruirGraficas();
+                document.getElementById('statsContainer').style.display = 'none';
+                document.getElementById('chartsContainer').innerHTML = '<div class="no-data">Seleccione un residente</div>';
+            }
+        });
+        
+        cargarDatos();
+    </script>
+</body>
+</html>
