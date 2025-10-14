@@ -106,18 +106,28 @@
                 skipEmptyLines: true,
                 complete: function(results) {
                     console.log('✅ Datos recibidos, total filas:', results.data.length);
+                    console.log('Mostrando todas las filas completas:');
+                    results.data.forEach((row, i) => {
+                        console.log(`Fila ${i}:`, row);
+                    });
                     
                     let headerIndex = -1;
                     for (let i = 0; i < results.data.length; i++) {
-                        if (results.data[i][0] && results.data[i][0].toString().toUpperCase().includes('FECHA')) {
-                            headerIndex = i;
-                            console.log('✅ Encabezados encontrados en fila:', i);
-                            break;
+                        const row = results.data[i];
+                        for (let j = 0; j < row.length; j++) {
+                            const cell = row[j] ? row[j].toString().trim().toUpperCase() : '';
+                            if (cell === 'FECHA' || cell.includes('FECHA')) {
+                                headerIndex = i;
+                                console.log('✅ Encabezados encontrados en fila:', i, 'columna:', j);
+                                break;
+                            }
                         }
+                        if (headerIndex !== -1) break;
                     }
                     
                     if (headerIndex === -1) {
-                        mostrarError('No se encontró la fila de encabezados (FECHA)');
+                        console.error('❌ No se encontró FECHA en ninguna celda');
+                        mostrarError('No se encontró la fila de encabezados. Revisa la consola para más detalles.');
                         return;
                     }
                     
