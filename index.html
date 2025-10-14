@@ -105,11 +105,12 @@
                 header: false,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    console.log('✅ Datos recibidos');
-                    console.log('Total filas:', results.data.length);
+                    console.log('✅ Datos recibidos, total filas:', results.data.length);
                     if (results.data.length > 3) {
-                        const headers = results.data[1];
-                        const dataRows = results.data.slice(2);
+                        const headers = results.data[2];
+                        const dataRows = results.data.slice(3);
+                        console.log('Encabezados:', headers);
+                        console.log('Primera fila de datos:', dataRows[0]);
                         const processedData = dataRows.map(row => {
                             const obj = {};
                             headers.forEach((header, index) => { obj[header] = row[index]; });
@@ -117,7 +118,7 @@
                         });
                         procesarDatos(processedData);
                     } else {
-                        mostrarError('No se encontraron datos suficientes');
+                        mostrarError('No se encontraron suficientes datos');
                     }
                 },
                 error: function(error) {
@@ -149,7 +150,7 @@
                 }
             });
             
-            console.log('✅ Procesados:', datosOriginales.length);
+            console.log('✅ Datos procesados:', datosOriginales.length);
             if (datosOriginales.length === 0) {
                 mostrarError('No se encontraron datos válidos');
                 return;
