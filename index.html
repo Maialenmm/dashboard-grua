@@ -378,34 +378,56 @@
         function procesarDatos(datos) {
             datosOriginales = [];
             
+            console.log('Datos recibidos:', datos);
+            console.log('Primera fila:', datos[0]);
+            
             datos.forEach(fila => {
-                const apellido1 = fila['APELLIDO 1'] ? fila['APELLIDO 1'].toString().trim() : '';
-                const apellido2 = fila['APELLIDO 2'] ? fila['APELLIDO 2'].toString().trim() : '';
-                const nombre = fila['NOMBRE'] ? fila['NOMBRE'].toString().trim() : '';
+                // Intentar diferentes variaciones de nombres de columnas
+                const apellido1 = fila['APELLIDO 1'] || fila['APELLIDO1'] || '';
+                const apellido2 = fila['APELLIDO 2'] || fila['APELLIDO2'] || '';
+                const nombre = fila['NOMBRE'] || fila['NOMBRE RESIDENTE'] || '';
                 
                 if (apellido1 && apellido2 && nombre) {
-                    const nombreCompleto = `${nombre} ${apellido1} ${apellido2}`.toLowerCase();
+                    const nombreCompleto = `${nombre} ${apellido1} ${apellido2}`.toLowerCase().trim();
                     const fecha = fila['FECHA'] || '';
                     const supervisor = fila['SUPERVISOR'] || '';
-                    const propulsiones = parseInt(fila['Nº PROPULSIONES']) || 0;
-                    const tiempo = parseInt(fila['TIEMPO TOLERADO (seg)']) || 0;
-                    const observaciones = fila['OBSERVACIONES CLINICAS'] || fila['OBSERVACIONES CLÍNICAS'] || '';
                     
-                    if (propulsiones > 0 && tiempo > 0) {
+                    // Buscar propulsiones con diferentes variaciones
+                    const propulsiones = parseInt(
+                        fila['Nº PROPULSIONES'] || 
+                        fila['N.º PROPULSIONES'] || 
+                        fila['NºPROPULSIONES'] ||
+                        fila['N° PROPULSIONES'] ||
+                        0
+                    );
+                    
+                    // Buscar tiempo con diferentes variaciones
+                    const tiempo = parseInt(
+                        fila['TIEMPO TOLERADO (seg)'] || 
+                        fila['TIEMPO TOLERADO(seg)'] ||
+                        fila['TIEMPO TOLERADO'] ||
+                        0
+                    );
+                    
+                    const observaciones = fila['OBSERVACIONES CLINICAS'] || fila['OBSERVACIONES CLÍNICAS'] || fila['OBSERVACIONES'] || '';
+                    
+                    if (fecha && propulsiones > 0 && tiempo > 0) {
                         datosOriginales.push({
-                            fecha: fecha,
+                            fecha: fecha.trim(),
                             nombre: nombreCompleto,
-                            supervisor: supervisor,
+                            supervisor: supervisor.trim(),
                             propulsiones: propulsiones,
                             tiempo: tiempo,
-                            observaciones: observaciones
+                            observaciones: observaciones.trim()
                         });
                     }
                 }
             });
             
+            console.log('Datos procesados:', datosOriginales);
+            
             if (datosOriginales.length === 0) {
-                mostrarError('No se encontraron datos válidos. Verifica que el Google Sheet esté publicado correctamente.');
+                mostrarError('No se encontraron datos válidos. Verifica que el Google Sheet tenga datos en las columnas correctas.');
                 return;
             }
             
