@@ -387,11 +387,28 @@
             
             Papa.parse(SHEET_URL, {
                 download: true,
-                header: true,
+                header: false,
                 skipEmptyLines: true,
                 complete: function(results) {
                     console.log('✅ Datos recibidos correctamente');
-                    procesarDatos(results.data);
+                    // Ignorar primera fila (GRUA) y usar segunda fila como encabezados
+                    if (results.data.length > 1) {
+                        const headers = results.data[1]; // Fila 2 con encabezados
+                        const dataRows = results.data.slice(2); // Datos desde fila 3
+                        
+                        // Convertir a objetos con encabezados
+                        const processedData = dataRows.map(row => {
+                            const obj = {};
+                            headers.forEach((header, index) => {
+                                obj[header] = row[index];
+                            });
+                            return obj;
+                        });
+                        
+                        procesarDatos(processedData);
+                    } else {
+                        mostrarError('No se encontraron datos en el Google Sheet');
+                    }
                 },
                 error: function(error) {
                     console.error('❌ Error:', error);
@@ -572,208 +589,4 @@
             const propulsiones = datosResidente.map(d => d.propulsiones);
             const tiempos = datosResidente.map(d => d.tiempo);
             
-            const container = document.getElementById('chartsContainer');
-            container.innerHTML = `
-                <div class="chart-card">
-                    <h2>📈 Evolución N.º Propulsiones</h2>
-                    <div class="chart-wrapper">
-                        <canvas id="chartPropulsiones"></canvas>
-                    </div>
-                </div>
-                <div class="chart-card">
-                    <h2>⏱️ Evolución Tiempo Tolerado</h2>
-                    <div class="chart-wrapper">
-                        <canvas id="chartTiempo"></canvas>
-                    </div>
-                </div>
-                <div class="chart-card chart-combined">
-                    <h2>📊 Evolución Combinada</h2>
-                    <div class="chart-wrapper">
-                        <canvas id="chartCombinado"></canvas>
-                    </div>
-                </div>
-            `;
-            
-            const ctxProp = document.getElementById('chartPropulsiones').getContext('2d');
-            charts.propulsiones = new Chart(ctxProp, {
-                type: 'line',
-                data: {
-                    labels: fechas,
-                    datasets: [{
-                        label: 'N.º Propulsiones',
-                        data: propulsiones,
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 8,
-                        pointHoverRadius: 10,
-                        pointBackgroundColor: '#667eea',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Número de Propulsiones',
-                                font: { size: 14, weight: 'bold' }
-                            },
-                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
-                        },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-            
-            const ctxTiempo = document.getElementById('chartTiempo').getContext('2d');
-            charts.tiempo = new Chart(ctxTiempo, {
-                type: 'line',
-                data: {
-                    labels: fechas,
-                    datasets: [{
-                        label: 'Tiempo Tolerado (seg)',
-                        data: tiempos,
-                        borderColor: '#764ba2',
-                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 8,
-                        pointHoverRadius: 10,
-                        pointBackgroundColor: '#764ba2',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Segundos',
-                                font: { size: 14, weight: 'bold' }
-                            },
-                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
-                        },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-            
-            const ctxComb = document.getElementById('chartCombinado').getContext('2d');
-            charts.combinado = new Chart(ctxComb, {
-                type: 'line',
-                data: {
-                    labels: fechas,
-                    datasets: [
-                        {
-                            label: 'N.º Propulsiones',
-                            data: propulsiones,
-                            borderColor: '#667eea',
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            borderWidth: 3,
-                            tension: 0.4,
-                            yAxisID: 'y',
-                            pointRadius: 8,
-                            pointHoverRadius: 10,
-                            pointBackgroundColor: '#667eea',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 3
-                        },
-                        {
-                            label: 'Tiempo Tolerado (seg)',
-                            data: tiempos,
-                            borderColor: '#764ba2',
-                            backgroundColor: 'rgba(118, 75, 162, 0.1)',
-                            borderWidth: 3,
-                            tension: 0.4,
-                            yAxisID: 'y1',
-                            pointRadius: 8,
-                            pointHoverRadius: 10,
-                            pointBackgroundColor: '#764ba2',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                font: { size: 14, weight: 'bold' },
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: 'N.º Propulsiones',
-                                color: '#667eea',
-                                font: { size: 14, weight: 'bold' }
-                            },
-                            grid: { color: 'rgba(102, 126, 234, 0.1)' }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: {
-                                display: true,
-                                text: 'Tiempo (segundos)',
-                                color: '#764ba2',
-                                font: { size: 14, weight: 'bold' }
-                            },
-                            grid: { drawOnChartArea: false }
-                        },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-        }
-        
-        document.getElementById('residentSelect').addEventListener('change', (e) => {
-            const residente = e.target.value;
-            if (residente) {
-                crearGraficas(residente);
-            } else {
-                destruirGraficas();
-                document.getElementById('statsContainer').style.display = 'none';
-                document.getElementById('chartsContainer').innerHTML = '<div class="no-data">Seleccione un residente para ver sus gráficas</div>';
-            }
-        });
-        
-        cargarDatos();
-    </script>
-</body>
-</html>
+            const container = docum
