@@ -106,10 +106,6 @@
                 skipEmptyLines: true,
                 complete: function(results) {
                     console.log('✅ Datos recibidos, total filas:', results.data.length);
-                    console.log('Mostrando todas las filas completas:');
-                    results.data.forEach((row, i) => {
-                        console.log(`Fila ${i}:`, row);
-                    });
                     
                     let headerIndex = -1;
                     for (let i = 0; i < results.data.length; i++) {
@@ -118,7 +114,7 @@
                             const cell = row[j] ? row[j].toString().trim().toUpperCase() : '';
                             if (cell === 'FECHA' || cell.includes('FECHA')) {
                                 headerIndex = i;
-                                console.log('✅ Encabezados encontrados en fila:', i, 'columna:', j);
+                                console.log('✅ Encabezados encontrados en fila:', i);
                                 break;
                             }
                         }
@@ -126,19 +122,26 @@
                     }
                     
                     if (headerIndex === -1) {
-                        console.error('❌ No se encontró FECHA en ninguna celda');
-                        mostrarError('No se encontró la fila de encabezados. Revisa la consola para más detalles.');
+                        mostrarError('No se encontró la fila de encabezados');
                         return;
                     }
                     
-                    const headers = results.data[headerIndex];
-                    const dataRows = results.data.slice(headerIndex + 1);
-                    console.log('Encabezados:', headers);
+                    let headers = results.data[headerIndex];
+                    headers = headers.map(h => h ? h.toString().replace('GRUA ', '').trim() : h);
+                    
+                    const dataRows = results.data.slice(headerIndex + 1).filter(row => {
+                        return row.some(cell => cell && cell.toString().trim() !== '');
+                    });
+                    
+                    console.log('Encabezados limpios:', headers);
+                    console.log('Total filas de datos:', dataRows.length);
                     console.log('Primera fila de datos:', dataRows[0]);
                     
                     const processedData = dataRows.map(row => {
                         const obj = {};
-                        headers.forEach((header, index) => { obj[header] = row[index]; });
+                        headers.forEach((header, index) => { 
+                            obj[header] = row[index]; 
+                        });
                         return obj;
                     });
                     procesarDatos(processedData);
@@ -153,28 +156,41 @@
         function procesarDatos(datos) {
             datosOriginales = [];
             console.log('📊 Procesando', datos.length, 'filas');
-            if (datos.length > 0) mostrarDebugInfo(Object.keys(datos[0]));
+            if (datos.length > 0) {
+                console.log('Ejemplo de fila:', datos[0]);
+                mostrarDebugInfo(Object.keys(datos[0]));
+            }
             
-            datos.forEach(fila => {
-                const apellido1 = fila['APELLIDO 1'] || fila['APELLIDO1'] || '';
-                const apellido2 = fila['APELLIDO 2'] || fila['APELLIDO2'] || '';
-                const nombre = fila['NOMBRE'] || '';
+            datos.forEach((fila, idx) => {
+                const apellido1 = (fila['APELLIDO 1'] || fila['APELLIDO1'] || fila['APELLIDO 1 '] || '').toString().trim();
+                const apellido2 = (fila['APELLIDO 2'] || fila['APELLIDO2'] || fila['APELLIDO 2 '] || '').toString().trim();
+                const nombre = (fila['NOMBRE'] || '').toString().trim();
+                
+                console.log(`Fila ${idx}: apellido1="${apellido1}", apellido2="${apellido2}", nombre="${nombre}"`);
+                
                 if (apellido1 && apellido2 && nombre) {
                     const nombreCompleto = `${nombre} ${apellido1} ${apellido2}`.toLowerCase().trim();
-                    const fecha = fila['FECHA'] || '';
-                    const supervisor = fila['SUPERVISOR'] || '';
-                    const propulsiones = parseInt(fila['Nº PROPULSIONES'] || fila['N.º PROPULSIONES'] || 0);
-                    const tiempo = parseInt(fila['TIEMPO TOLERADO (seg)'] || fila['TIEMPO TOLERADO'] || 0);
-                    const observaciones = fila['OBSERVACIONES CLINICAS'] || fila['OBSERVACIONES CLÍNICAS'] || '';
+                    const fecha = (fila['FECHA'] || '').toString().trim();
+                    const supervisor = (fila['SUPERVISOR'] || '').toString().trim();
+                    const propulsiones = parseInt(fila['Nº PROPULSIONES'] || fila['N.º PROPULSIONES'] || fila['Nº PROPULSIONES '] || 0);
+                    const tiempo = parseInt(fila['TIEMPO TOLERADO (seg)'] || fila['TIEMPO TOLERADO'] || fila['TIEMPO TOLERADO (seg) '] || 0);
+                    const observaciones = (fila['OBSERVACIONES CLINICAS'] || fila['OBSERVACIONES CLÍNICAS'] || fila['OBSERVACIONES CLÍNICAS '] || '').toString().trim();
+                    
                     if (fecha && propulsiones > 0 && tiempo > 0) {
-                        datosOriginales.push({ fecha: fecha.trim(), nombre: nombreCompleto, supervisor: supervisor.trim(), propulsiones, tiempo, observaciones: observaciones.trim() });
+                        datosOriginales.push({ fecha, nombre: nombreCompleto, supervisor, propulsiones, tiempo, observaciones });
+                        console.log(`✅ Procesado: ${nombreCompleto}`);
+                    } else {
+                        console.log(`⚠️ Fila omitida: fecha="${fecha}", prop=${propulsiones}, tiempo=${tiempo}`);
                     }
+                } else {
+                    console.log(`⚠️ Fila omitida por datos incompletos`);
                 }
             });
             
-            console.log('✅ Datos procesados:', datosOriginales.length);
+            console.log('✅ Total datos procesados:', datosOriginales.length);
+            
             if (datosOriginales.length === 0) {
-                mostrarError('No se encontraron datos válidos');
+                mostrarError('No se encontraron datos válidos. Revisa la consola para más detalles.');
                 return;
             }
             
