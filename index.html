@@ -85,7 +85,7 @@
         </div>
     </div>
     <script>
-        const SHEET_ID = '1J4m__WGpBuzCU1dgpP5ZWWbY5yUakq-V8eDy8iRpUfg';
+        const SHEET_ID = '1vOaf-BpP06_iOYkRKYpiypS67F7JtdAMJeZxecF02rU';
         const SHEET_NAME = 'DATOS';
         let datosOriginales = [];
         let charts = {};
@@ -135,6 +135,13 @@
                     
                     console.log('Encabezados limpios:', headers);
                     console.log('Total filas de datos:', dataRows.length);
+                    
+                    if (dataRows.length === 0) {
+                        document.getElementById('loadingIndicator').style.display = 'none';
+                        document.getElementById('chartsContainer').innerHTML = '<div class="no-data">📋 Hoja vacía<br><br>Añade datos al Google Sheet para ver las gráficas</div>';
+                        return;
+                    }
+                    
                     console.log('Primera fila de datos:', dataRows[0]);
                     
                     const processedData = dataRows.map(row => {
@@ -166,8 +173,6 @@
                 const apellido2 = (fila['APELLIDO 2'] || fila['APELLIDO2'] || fila['APELLIDO 2 '] || '').toString().trim();
                 const nombre = (fila['NOMBRE'] || '').toString().trim();
                 
-                console.log(`Fila ${idx}: apellido1="${apellido1}", apellido2="${apellido2}", nombre="${nombre}"`);
-                
                 if (apellido1 && apellido2 && nombre) {
                     const nombreCompleto = `${nombre} ${apellido1} ${apellido2}`.toLowerCase().trim();
                     const fecha = (fila['FECHA'] || '').toString().trim();
@@ -179,18 +184,15 @@
                     if (fecha && propulsiones > 0 && tiempo > 0) {
                         datosOriginales.push({ fecha, nombre: nombreCompleto, supervisor, propulsiones, tiempo, observaciones });
                         console.log(`✅ Procesado: ${nombreCompleto}`);
-                    } else {
-                        console.log(`⚠️ Fila omitida: fecha="${fecha}", prop=${propulsiones}, tiempo=${tiempo}`);
                     }
-                } else {
-                    console.log(`⚠️ Fila omitida por datos incompletos`);
                 }
             });
             
             console.log('✅ Total datos procesados:', datosOriginales.length);
             
             if (datosOriginales.length === 0) {
-                mostrarError('No se encontraron datos válidos. Revisa la consola para más detalles.');
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('chartsContainer').innerHTML = '<div class="no-data">📋 No hay datos válidos<br><br>Añade registros completos al Google Sheet</div>';
                 return;
             }
             
